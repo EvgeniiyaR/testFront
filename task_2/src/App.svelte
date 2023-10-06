@@ -1,47 +1,130 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  let data: {
+    conversion_rates: {};
+  };
+  let pair: {
+    conversion_rate: number;
+  };
+  let inputValueLeft: number;
+  let inputValueRight: number;
+  let currentCurrencyLeft = 'USD';
+  let currentCurrencyRight = 'USD';
+
+  async function selectRight(event: Event) {
+    const selectLefttId = document.querySelector('#select-left') as HTMLInputElement;
+    const target = event.target as HTMLInputElement;
+    await fetchConverter(selectLefttId?.value, target.value);
+    if (target.value !== selectLefttId.value) {
+      $: inputValueRight = pair.conversion_rate * inputValueLeft;
+    } else {
+      $: inputValueRight = inputValueLeft;
+    }
+  }
+
+  async function selectLeft(event: Event) {
+    const selectRightId = document.querySelector('#select-right') as HTMLInputElement;
+    const target = event.target as HTMLInputElement;
+    await fetchConverter(selectRightId?.value, target.value);
+    if (target.value !== selectRightId.value) {
+      $: inputValueLeft = pair.conversion_rate * inputValueRight;
+    } else {
+      $: inputValueLeft = inputValueRight;
+    }
+  }
+
+  async function changeValueRight() {
+    const selectLeftId = document.querySelector('#select-left') as HTMLInputElement;
+    const selectRightId = document.querySelector('#select-right') as HTMLInputElement;
+    if (currentCurrencyLeft !== selectLeftId?.value || currentCurrencyRight !== selectRightId?.value) {
+      await fetchConverter(selectLeftId.value, selectRightId.value);
+    }
+
+    if (selectLeftId.value !== selectRightId.value) {
+      $: inputValueRight = pair.conversion_rate * inputValueLeft;
+    } else {
+      $: inputValueRight = inputValueLeft;
+    }
+  }
+
+  async function changeValueLeft() {
+    const selectLeftId = document.querySelector('#select-left') as HTMLInputElement;
+    const selectRightId = document.querySelector('#select-right') as HTMLInputElement;
+    if (currentCurrencyLeft !== selectRightId.value || currentCurrencyRight !== selectLeftId.value) {
+      await fetchConverter(selectRightId.value, selectLeftId.value);
+    }
+
+    if (selectLeftId.value !== selectRightId.value) {
+      $: inputValueLeft = pair.conversion_rate * inputValueRight;
+    } else {
+      $: inputValueLeft = inputValueRight;
+    }
+  }
+
+  async function fetchConverter(currencyLeft = 'USD', currencyRight = 'USD') {
+    try {
+      currentCurrencyLeft = currencyLeft;
+      currentCurrencyRight = currencyRight;
+
+      const response = await fetch(`https://v6.exchangerate-api.com/v6//8956c6ae534857b7e6bb0e54/pair/${currencyLeft}/${currencyRight}`);
+      if (!response.ok) {
+        throw new Error('Ошибка при выполнении запроса');
+      }
+      pair = await response.json();
+    } catch (error) {
+      console.error('Произошла ошибка:', error);
+    }
+  }
+
+  async function fetchData() {
+    try {
+      const response = await fetch(`https://v6.exchangerate-api.com/v6/8956c6ae534857b7e6bb0e54/latest/USD`);
+      if (!response.ok) {
+        throw new Error('Ошибка при выполнении запроса');
+      }
+      data = await response.json();
+    } catch (error) {
+      console.error('Произошла ошибка:', error);
+    }
+  }
+
+  fetchData();
 </script>
 
 <main>
+  <h1>Конвертер валют</h1>
+
   <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+    <input type="text" bind:value={inputValueLeft} on:input={changeValueRight} />
+
+    <select name="before" id="select-left" on:change={(event) => selectLeft(event)}>
+      {#if data && data?.conversion_rates}
+        {#each Object.keys(data?.conversion_rates) as key}
+          <option value={key}>{key}</option>
+        {/each}
+      {:else}
+        <option>Загрузка данных...</option>
+      {/if}
+    </select>
   </div>
-  <h1>Vite + Svelte</h1>
 
-  <div class="card">
-    <Counter />
+  <p> 🠔 🠖 </p>
+
+  <div>
+    <input type="text" bind:value={inputValueRight} on:input={changeValueLeft} />
+
+    <select name="after" id="select-right" on:change={(event) => selectRight(event)}>
+      {#if data && data.conversion_rates}
+        {#each Object.keys(data.conversion_rates) as key}
+          <option value={key}>{key}</option>
+        {/each}
+      {:else}
+        <option>Загрузка данных...</option>
+      {/if}
+    </select>
   </div>
 
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
-  }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
-  }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
-  }
-  .read-the-docs {
-    color: #888;
-  }
+
 </style>
