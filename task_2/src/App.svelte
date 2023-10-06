@@ -97,7 +97,7 @@
     <input type="text" bind:value={inputValueLeft} on:input={changeValueRight} />
 
     <select name="before" id="select-left" on:change={(event) => selectLeft(event)}>
-      {#if data && data?.conversion_rates}
+      {#if data && data.conversion_rates}
         {#each Object.keys(data?.conversion_rates) as key}
           <option value={key}>{key}</option>
         {/each}
