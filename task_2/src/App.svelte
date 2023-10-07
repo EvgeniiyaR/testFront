@@ -16,8 +16,8 @@
   $: changeValueLeft;
 
   async function selectRight(event: Event) {
-    const selectLefttId = document.querySelector('#select-left') as HTMLInputElement;
-    const target = event.target as HTMLInputElement;
+    const selectLefttId = document.querySelector('#select-left') as HTMLSelectElement;
+    const target = event.target as HTMLSelectElement;
     await fetchConverter(selectLefttId?.value, target.value);
     if (target.value !== selectLefttId.value) {
       inputValueRight = pair.conversion_rate * inputValueLeft;
@@ -27,8 +27,8 @@
   }
 
   async function selectLeft(event: Event) {
-    const selectRightId = document.querySelector('#select-right') as HTMLInputElement;
-    const target = event.target as HTMLInputElement;
+    const selectRightId = document.querySelector('#select-right') as HTMLSelectElement;
+    const target = event.target as HTMLSelectElement;
     await fetchConverter(selectRightId?.value, target.value);
     if (target.value !== selectRightId.value) {
       inputValueLeft = pair.conversion_rate * inputValueRight;
@@ -38,8 +38,8 @@
   }
 
   async function changeValueRight() {
-    const selectLeftId = document.querySelector('#select-left') as HTMLInputElement;
-    const selectRightId = document.querySelector('#select-right') as HTMLInputElement;
+    const selectLeftId = document.querySelector('#select-left') as HTMLSelectElement;
+    const selectRightId = document.querySelector('#select-right') as HTMLSelectElement;
     if (currentCurrencyLeft !== selectLeftId.value || currentCurrencyRight !== selectRightId.value) {
       await fetchConverter(selectLeftId.value, selectRightId.value);
     }
@@ -52,8 +52,8 @@
   }
 
   async function changeValueLeft() {
-    const selectLeftId = document.querySelector('#select-left') as HTMLInputElement;
-    const selectRightId = document.querySelector('#select-right') as HTMLInputElement;
+    const selectLeftId = document.querySelector('#select-left') as HTMLSelectElement;
+    const selectRightId = document.querySelector('#select-right') as HTMLSelectElement;
     if (currentCurrencyLeft !== selectRightId.value || currentCurrencyRight !== selectLeftId.value) {
       await fetchConverter(selectRightId.value, selectLeftId.value);
     }
